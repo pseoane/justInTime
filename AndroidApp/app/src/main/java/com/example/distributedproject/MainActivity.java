@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     private SeekBar seekBar;
+    private TextView selectedPriceLabel;
     private TextView currentPriceLabel;
     private PahoClient client;
     private int currentSelectedPrice;
@@ -19,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         seekBar = findViewById(R.id.seekBar);
+        currentPriceLabel = findViewById(R.id.selectedPriceLabel);
         client = new PahoClient(getApplication());
         if (!client.getLightValue().hasObservers()) {
             client.getLightValue().observe(this, value -> {
@@ -26,14 +28,15 @@ public class MainActivity extends AppCompatActivity {
                     Toast toast = Toast.makeText(getApplicationContext(), "Current price is " + value + ". Turn the washing machine on!!", Toast.LENGTH_SHORT);
                     toast.show();
                 }
+                currentPriceLabel.setText("Current light price is: " + value + "€");
             });
         }
-        currentPriceLabel = findViewById(R.id.currentPriceTextView);
+        selectedPriceLabel = findViewById(R.id.currentPriceTextView);
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
-                currentPriceLabel.setText("Selected Price: " + progress + "€");
+                selectedPriceLabel.setText("Selected Price: " + progress + "€");
             }
 
             @Override

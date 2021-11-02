@@ -41,4 +41,14 @@
         app:layout_constraintBottom_toTopOf="@+id/currentPriceTextView"
         app:layout_constraintEnd_toEndOf="@+id/seekBar"
         app:layout_constraintStart_toStartOf="@+id/seekBar" />
+
+    <TextView
+        android:id="@+id/selectedPriceLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:text="Last known price: ???€"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@+id/titleTextView"
+        app:layout_constraintStart_toStartOf="@+id/titleTextView" />
 </androidx.constraintlayout.widget.ConstraintLayout>
