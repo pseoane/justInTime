@@ -18,11 +18,15 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 public class PahoClient {
     final String serverUri = "tcp://192.168.80.1:1883";
-    final String subscriptionTopic = "light";
+    final String currentLightPriceTopic = "currentLightPrice";
+    final String washingMachineStatusTopic = "washingMachineStatus";
+    final String turnOnOrderTopic = "turnWashingMachineOn";
+
     MqttAndroidClient mqttAndroidClient;
     String clientId = "ExampleAndroidClient";
 
     private MutableLiveData<Float> lastReceivedLightPrice;
+    private MutableLiveData<String> washingMachineStatus;
 
     public PahoClient(Application application) {
         clientId = clientId + System.currentTimeMillis();
@@ -33,7 +37,8 @@ public class PahoClient {
             public void connectComplete(boolean reconnect, String serverURI) {
                 if (reconnect) {
                     // Because Clean Session is true, we need to re-subscribe
-                    subscribeToTopic();
+                    subscribeToTopic(currentLightPriceTopic);
+                    subscribeToTopic(washingMachineStatusTopic);
                 }
             }
 
@@ -44,10 +49,14 @@ public class PahoClient {
 
             @Override
             public void messageArrived(String topic, MqttMessage message) {
-                String price = new String(message.getPayload());
-                Float priceFloat = new Float(price);
-                Log.d("PAHO", priceFloat.toString());
-                lastReceivedLightPrice.postValue(priceFloat);
+                if (topic.equals(currentLightPriceTopic)) {
+                    String price = new String(message.getPayload());
+                    Float priceFloat = new Float(price);
+                    Log.d("PAHO", priceFloat.toString());
+                    lastReceivedLightPrice.postValue(priceFloat);
+                } else if (topic.equals(washingMachineStatusTopic)) {
+                    washingMachineStatus.postValue(new String(message.getPayload()));
+                }
             }
 
             @Override
@@ -71,7 +80,8 @@ public class PahoClient {
                     disconnectedBufferOptions.setPersistBuffer(false);
                     disconnectedBufferOptions.setDeleteOldestMessages(false);
                     mqttAndroidClient.setBufferOpts(disconnectedBufferOptions);
-                    subscribeToTopic();
+                    subscribeToTopic(currentLightPriceTopic);
+                    subscribeToTopic(washingMachineStatusTopic);
                 }
 
                 @Override
@@ -86,12 +96,12 @@ public class PahoClient {
         }
     }
 
-    public void subscribeToTopic() {
+    public void subscribeToTopic(String topic) {
         try {
-            mqttAndroidClient.subscribe(subscriptionTopic, 0, null, new IMqttActionListener() {
+            mqttAndroidClient.subscribe(topic, 0, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
-                    Log.d("PAHO", "Subscribed to: " + subscriptionTopic);
+                    Log.d("PAHO", "Subscribed to: " + topic);
                 }
 
                 @Override
@@ -105,10 +115,30 @@ public class PahoClient {
 
     }
 
+
+    public void publishTurnOnOrder() {
+        MqttMessage message = new MqttMessage();
+        message.setPayload("ON".getBytes());
+        message.setRetained(false);
+        message.setQos(0);
+        try {
+            mqttAndroidClient.publish(turnOnOrderTopic, message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public MutableLiveData<Float> getLightValue() {
         if (lastReceivedLightPrice == null) {
-            lastReceivedLightPrice = new MutableLiveData<Float>();
+            lastReceivedLightPrice = new MutableLiveData<>();
         }
         return lastReceivedLightPrice;
+    }
+
+    public MutableLiveData<String> getWashingMachineStatus() {
+        if (washingMachineStatus == null) {
+            washingMachineStatus = new MutableLiveData<>();
+        }
+        return washingMachineStatus;
     }
 }
