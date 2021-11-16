@@ -16,11 +16,5 @@ This system is based in three main modules:
   to the *washingMachineStatus* topic, so that washing machine is not turned on if it is already working.
 * **Mosquitto MQTT broker:** During the development of this system, the Mosquitto MQTT broker was deployed in a local machine
 
-## QoS and retain flags
-
-* **currentLightPrice MQTT Publisher**: QoS = 1, Retain = true 
-* **currentLightPrice MQTT Subscriber**: QoS = 1
-* **turnWashingMachineOn MQTT Publisher**: QoS = 2 
-* **turnWashingMachineOn MQTT Suscriber**: QoS = 2 
-* **washingMachineStatus MQTT Publishe**r: QoS = 2, Retain = true
-* **washingMachineStatus MQTT Suscriber**: QoS = 2 
+## Diagram
+![mqttdiagram](https://user-images.githubusercontent.com/92456761/142055148-a6fe49ed-9fe6-4f48-b1ef-fe7e2e578e4d.jpg)
